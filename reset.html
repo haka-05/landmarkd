@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Landmarkd — Reset Password</title>
+<style>
+  :root { color-scheme: light dark; }
+  body {
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    max-width: 26rem; margin: 0 auto; padding: 4rem 1.5rem;
+    line-height: 1.6; color: #111; background: #fff;
+  }
+  @media (prefers-color-scheme: dark) {
+    body { color: #e8e8e8; background: #0e0e0e; }
+    input { background: #171717; border-color: #2a2a2a; color: #e8e8e8; }
+    .btn { background: #fff; color: #0e0e0e; }
+    .note { background: #171717; border-color: #2a2a2a; }
+  }
+  h1 { font-size: 1.5rem; letter-spacing: -0.02em; margin: 0 0 .4rem; }
+  p.sub { color: #666; margin: 0 0 1.75rem; font-size: .95rem; }
+  @media (prefers-color-scheme: dark) { p.sub { color: #999; } }
+  label { display: block; font-size: .85rem; font-weight: 600; margin-bottom: .4rem; }
+  input {
+    width: 100%; box-sizing: border-box; padding: .8rem .9rem; margin-bottom: 1rem;
+    border: 1px solid #ddd; border-radius: 10px; font-size: 1rem; background: #fafafa;
+  }
+  .btn {
+    width: 100%; padding: .95rem; border: 0; border-radius: 999px;
+    background: #111; color: #fff; font-weight: 600; font-size: .95rem; cursor: pointer;
+  }
+  .btn:disabled { opacity: .5; cursor: default; }
+  .msg { margin-top: 1rem; font-size: .9rem; }
+  .err { color: #c0392b; }
+  .ok { color: #1f9d55; }
+  .note {
+    margin-top: 2rem; padding: 1rem 1.15rem; font-size: .9rem;
+    border: 1px solid #e5e5e5; border-radius: 12px; background: #fafafa;
+  }
+  .check {
+    width: 60px; height: 60px; border-radius: 50%; background: #1f9d55; color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px; margin: 0 auto 1.25rem;
+  }
+  .center { text-align: center; }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+
+<div id="form-view">
+  <h1>Set a new password</h1>
+  <p class="sub">Choose a new password for your Landmarkd account.</p>
+
+  <form id="reset-form">
+    <label for="pw">New password</label>
+    <input type="password" id="pw" autocomplete="new-password" placeholder="At least 6 characters" required>
+
+    <label for="pw2">Confirm new password</label>
+    <input type="password" id="pw2" autocomplete="new-password" placeholder="Type it again" required>
+
+    <button class="btn" type="submit" id="submit-btn">Update password</button>
+  </form>
+  <div class="msg err" id="error"></div>
+</div>
+
+<div id="done-view" class="hidden center">
+  <div class="check">&#10003;</div>
+  <h1>Password updated</h1>
+  <p class="sub">Open the Landmarkd app and log in with your new password.</p>
+</div>
+
+<div id="invalid-view" class="hidden">
+  <h1>This link didn't work</h1>
+  <p class="sub" id="invalid-reason">Password reset links expire after a short time and can only be used once.</p>
+  <div class="note">
+    Open the Landmarkd app, tap <strong>Forgot password?</strong> on the login screen, and we'll send a fresh link.
+  </div>
+</div>
+
+<script>
+  // Password reset happens here on the web rather than deep-linking into the
+  // app: custom schemes like landmarkd:// don't work in Expo Go at all, and
+  // even in a real build they fail if the app isn't installed on the device
+  // that opened the email. A web page works everywhere.
+  var SUPABASE_URL = 'https://qvmnthspckirkldfnvhs.supabase.co';
+  // Publishable key — public by design, same one that ships inside the app.
+  // It grants nothing on its own; the recovery token below is what authorizes
+  // this specific password change.
+  var SUPABASE_ANON_KEY = 'sb_publishable_cI6-E6Qnx4NGlnegNndkaQ_Bvhq_Pos';
+
+  function show(id) {
+    ['form-view', 'done-view', 'invalid-view'].forEach(function (v) {
+      document.getElementById(v).classList.toggle('hidden', v !== id);
+    });
+  }
+
+  var params = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+  var accessToken = params.get('access_token');
+  var errorDescription = params.get('error_description');
+
+  // Don't leave the recovery token sitting in the address bar or history.
+  if (window.location.hash) {
+    history.replaceState(null, '', window.location.pathname);
+  }
+
+  if (errorDescription) {
+    document.getElementById('invalid-reason').textContent = decodeURIComponent(errorDescription.replace(/\+/g, ' '));
+    show('invalid-view');
+  } else if (!accessToken) {
+    show('invalid-view');
+  }
+
+  document.getElementById('reset-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var pw = document.getElementById('pw').value;
+    var pw2 = document.getElementById('pw2').value;
+    var errEl = document.getElementById('error');
+    var btn = document.getElementById('submit-btn');
+    errEl.textContent = '';
+
+    if (pw.length < 6) { errEl.textContent = 'Password must be at least 6 characters.'; return; }
+    if (pw !== pw2) { errEl.textContent = "Those passwords don't match."; return; }
+
+    btn.disabled = true;
+    btn.textContent = 'Updating...';
+
+    fetch(SUPABASE_URL + '/auth/v1/user', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': 'Bearer ' + accessToken
+      },
+      body: JSON.stringify({ password: pw })
+    })
+      .then(function (res) {
+        return res.json().then(function (body) { return { ok: res.ok, body: body }; });
+      })
+      .then(function (result) {
+        if (result.ok) {
+          show('done-view');
+        } else {
+          errEl.textContent = (result.body && (result.body.msg || result.body.message || result.body.error_description))
+            || 'Something went wrong. Request a new reset link and try again.';
+          btn.disabled = false;
+          btn.textContent = 'Update password';
+        }
+      })
+      .catch(function () {
+        errEl.textContent = 'Network error — check your connection and try again.';
+        btn.disabled = false;
+        btn.textContent = 'Update password';
+      });
+  });
+</script>
+</body>
+</html>
