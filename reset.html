@@ -20,10 +20,24 @@
   h1 { font-size: 1.5rem; letter-spacing: -0.02em; margin: 0 0 .4rem; color: #111111; }
   p.sub { color: #555555; margin: 0 0 1.75rem; font-size: .95rem; }
   label { display: block; font-size: .85rem; font-weight: 600; margin-bottom: .4rem; color: #111111; }
+  /* -webkit-text-fill-color, not just color: on iOS the `color` property does
+     not reliably control glyphs rendered inside an input — including the dots
+     in a password field. Without this the mask characters can come out light
+     grey and be effectively invisible on the light background. */
   input {
     width: 100%; box-sizing: border-box; padding: .8rem .9rem; margin-bottom: 1rem;
     border: 1px solid #dddddd; border-radius: 10px; font-size: 1rem;
     background: #fafafa; color: #111111;
+    -webkit-text-fill-color: #111111;
+    opacity: 1;
+  }
+  input::placeholder { color: #999999; -webkit-text-fill-color: #999999; opacity: 1; }
+  /* Password managers autofill with their own colours; pin those back too. */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus {
+    -webkit-text-fill-color: #111111;
+    -webkit-box-shadow: 0 0 0 1000px #fafafa inset;
   }
   .btn {
     width: 100%; padding: .95rem; border: 0; border-radius: 999px;
