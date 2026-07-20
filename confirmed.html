@@ -5,39 +5,40 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Landmarkd — Email Confirmed</title>
 <style>
-  :root { color-scheme: light dark; }
+  /* Pinned to light on purpose. This page is opened from an email client, and
+     several in-app browsers apply a white background while still reporting
+     prefers-color-scheme: dark — which made the light-on-dark text render as
+     white-on-white. Every colour below is explicit so the two halves can never
+     disagree. */
+  :root { color-scheme: only light; }
+  html, body { background: #ffffff; }
   body {
     font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     max-width: 30rem; margin: 0 auto; padding: 5rem 1.5rem;
-    line-height: 1.65; color: #111; background: #fff;
+    line-height: 1.65; color: #111111;
     text-align: center;
-  }
-  @media (prefers-color-scheme: dark) {
-    body { color: #e8e8e8; background: #0e0e0e; }
-    .card { background: #171717; border-color: #2a2a2a; }
-    .btn { background: #fff; color: #0e0e0e; }
   }
   .check {
     width: 64px; height: 64px; border-radius: 50%;
-    background: #1f9d55; color: #fff;
+    background: #1f9d55; color: #ffffff;
     display: flex; align-items: center; justify-content: center;
     font-size: 34px; margin: 0 auto 1.5rem;
   }
-  h1 { font-size: 1.6rem; letter-spacing: -0.02em; margin: 0 0 .5rem; }
-  p { margin: .6rem 0; color: #666; }
-  @media (prefers-color-scheme: dark) { p { color: #999; } }
+  h1 { font-size: 1.6rem; letter-spacing: -0.02em; margin: 0 0 .5rem; color: #111111; }
+  p { margin: .6rem 0; color: #555555; }
   .card {
     margin-top: 2rem; padding: 1.25rem;
     border: 1px solid #e5e5e5; border-radius: 14px;
-    background: #fafafa; font-size: .95rem;
+    background: #fafafa; font-size: .95rem; color: #111111;
   }
+  .card strong { color: #111111; }
   .btn {
     display: inline-block; margin-top: 1.75rem;
     padding: .9rem 1.75rem; border-radius: 999px;
-    background: #111; color: #fff; text-decoration: none;
+    background: #111111; color: #ffffff; text-decoration: none;
     font-weight: 600; font-size: .95rem;
   }
-  .muted { font-size: .8rem; margin-top: 2.5rem; }
+  .muted { font-size: .8rem; margin-top: 2.5rem; color: #777777; }
 </style>
 </head>
 <body>
