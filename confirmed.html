@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Landmarkd — Email Confirmed</title>
+<style>
+  :root { color-scheme: light dark; }
+  body {
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    max-width: 30rem; margin: 0 auto; padding: 5rem 1.5rem;
+    line-height: 1.65; color: #111; background: #fff;
+    text-align: center;
+  }
+  @media (prefers-color-scheme: dark) {
+    body { color: #e8e8e8; background: #0e0e0e; }
+    .card { background: #171717; border-color: #2a2a2a; }
+    .btn { background: #fff; color: #0e0e0e; }
+  }
+  .check {
+    width: 64px; height: 64px; border-radius: 50%;
+    background: #1f9d55; color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 34px; margin: 0 auto 1.5rem;
+  }
+  h1 { font-size: 1.6rem; letter-spacing: -0.02em; margin: 0 0 .5rem; }
+  p { margin: .6rem 0; color: #666; }
+  @media (prefers-color-scheme: dark) { p { color: #999; } }
+  .card {
+    margin-top: 2rem; padding: 1.25rem;
+    border: 1px solid #e5e5e5; border-radius: 14px;
+    background: #fafafa; font-size: .95rem;
+  }
+  .btn {
+    display: inline-block; margin-top: 1.75rem;
+    padding: .9rem 1.75rem; border-radius: 999px;
+    background: #111; color: #fff; text-decoration: none;
+    font-weight: 600; font-size: .95rem;
+  }
+  .muted { font-size: .8rem; margin-top: 2.5rem; }
+</style>
+</head>
+<body>
+  <div class="check">&#10003;</div>
+  <h1>You're all set</h1>
+  <p>Your email is confirmed and your Landmarkd account is active.</p>
+
+  <div class="card">
+    Head back to the <strong>Landmarkd</strong> app and log in with your email and password.
+  </div>
+
+  <a class="btn" href="landmarkd://">Open Landmarkd</a>
+
+  <p class="muted">If that button doesn't do anything, just close this tab and open the app yourself.</p>
+
+<script>
+  // The confirmation redirect carries access/refresh tokens in the URL fragment.
+  // Nothing on this page needs them, and they shouldn't sit in the address bar
+  // or browser history, so strip the fragment as soon as the page loads.
+  if (window.location.hash) {
+    history.replaceState(null, '', window.location.pathname + window.location.search);
+  }
+</script>
+</body>
+</html>
