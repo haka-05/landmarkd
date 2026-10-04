@@ -25,6 +25,7 @@
      in a password field. Without this the mask characters can come out light
      grey and be effectively invisible on the light background. */
   input {
+    font-family: inherit; /* inputs don't inherit the page font either */
     width: 100%; box-sizing: border-box; padding: .8rem .9rem; margin-bottom: 1rem;
     border: 1px solid #dddddd; border-radius: 10px; font-size: 1rem;
     background: #fafafa; color: #111111;
@@ -39,7 +40,10 @@
     -webkit-text-fill-color: #111111;
     -webkit-box-shadow: 0 0 0 1000px #fafafa inset;
   }
+  /* font-family: inherit — a <button> doesn't pick up the page's font on its
+     own in every browser, and fell back to a serif face in WebKit testing. */
   .btn {
+    font-family: inherit;
     width: 100%; padding: .95rem; border: 0; border-radius: 999px;
     background: #111111; color: #ffffff; font-weight: 600; font-size: .95rem; cursor: pointer;
   }
@@ -151,12 +155,25 @@
       body: JSON.stringify({ password: pw })
     })
       .then(function (res) {
-        return res.json().then(function (body) { return { ok: res.ok, body: body }; });
+        return res.json()
+          .catch(function () { return null; })
+          .then(function (body) { return { ok: res.ok, status: res.status, body: body }; });
       })
       .then(function (result) {
         if (result.ok) {
           show('done-view');
+        } else if (result.status === 401 || result.status === 403) {
+          // The link itself is no good — expired, already used, or mangled by
+          // the email client. Supabase reports all of these as raw JWT errors
+          // ("invalid JWT: ... token is expired"), which mean nothing to the
+          // person reading them. They need a fresh link, so say that, on the
+          // same screen an expired link lands on.
+          document.getElementById('invalid-reason').textContent =
+            'This reset link has expired or was already used.';
+          show('invalid-view');
         } else {
+          // Anything else is a message written for people, e.g. "New password
+          // should be different from the old password." — show it as-is.
           errEl.textContent = (result.body && (result.body.msg || result.body.message || result.body.error_description))
             || 'Something went wrong. Request a new reset link and try again.';
           btn.disabled = false;
