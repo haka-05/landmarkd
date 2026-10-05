@@ -145,8 +145,8 @@
         if (photos.length > 1) thumbs.classList.remove('hidden');
       }
 
-      // Opens the app straight to this spot if it's installed. Universal links
-      // (a later build) will make the page's own URL do this directly.
+      // Opens the app straight to this spot if it's installed. iOS never hands a
+      // link to the app from a page on the same domain, so this stays the custom scheme.
       document.getElementById('open').href = 'landmarkd://spot?id=' + pin.id;
       show('spot');
     }).catch(function () { show('missing'); });
