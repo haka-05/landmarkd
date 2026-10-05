@@ -8,40 +8,45 @@
      JavaScript, and this site is static, so every spot shares the same generic
      card. Per-spot previews would need a server-side page. -->
 <meta property="og:title" content="A photo spot on Landmarkd">
-<meta property="og:description" content="Find the best places to shoot in NYC — and what to wear to them.">
+<meta property="og:description" content="NYC's best photo spots, and what to wear to them.">
 <meta property="og:image" content="https://landmarkd.co/og-image.png">
 <meta property="og:site_name" content="Landmarkd">
 <meta name="twitter:card" content="summary">
+<meta name="theme-color" content="#0d0d0c">
+<link rel="preload" href="assets/fonts/archivo-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/site.css">
+<link rel="icon" type="image/png" href="assets/pin-yellow.png">
 <style>
-  /* Pinned to light on purpose, like reset.html: in-app browsers (Instagram,
-     Gmail) can force a white background while reporting dark mode. */
-  :root { color-scheme: only light; }
-  html, body { background: #ffffff; margin: 0; }
-  body { font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #111111; line-height: 1.5; }
-  .bar { background: #FAD02B; padding: 16px 20px; display: flex; justify-content: center; }
-  .bar img { height: 22px; width: auto; display: block; }
-  main { max-width: 32rem; margin: 0 auto; }
-  /* Square and capped, so the spot's name is on the first screen without scrolling. */
-  .hero { width: 100%; aspect-ratio: 1; max-height: 60vh; object-fit: cover; display: block; background: #eeeeee; }
-  .thumbs { display: flex; gap: 6px; padding: 6px 20px 0; }
-  .thumbs img { width: 33%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; background: #eeeeee; }
-  .body { padding: 20px 20px 40px; }
-  h1 { font-size: 1.6rem; letter-spacing: -0.02em; margin: 0 0 4px; }
-  .rating { font-weight: 600; font-size: .95rem; margin-bottom: 4px; }
-  .rating.unrated { color: #8A6B00; }
-  .where { color: #666666; font-size: .95rem; margin-bottom: 14px; }
-  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
-  .tag { border: 1px solid #dddddd; border-radius: 999px; padding: 3px 11px; font-size: .8rem; font-weight: 600; }
-  .desc { margin: 0 0 24px; white-space: pre-line; }
-  .btn { display: block; text-align: center; background: #111111; color: #ffffff; text-decoration: none; font-weight: 600; padding: 15px; border-radius: 999px; }
-  .soon { text-align: center; color: #888888; font-size: .85rem; margin-top: 12px; }
-  .state { padding: 64px 24px; text-align: center; color: #666666; }
-  .state h1 { color: #111111; }
+  /* The site's dark theme (assets/site.css), with explicit colours rather than
+     a light/dark media query, so in-app browsers (Instagram, Gmail) can't
+     force a mismatched background. */
+  main { width: min(560px, 100% - 2rem); margin: 0 auto; padding-top: 6.5rem; }
+  .hero { width: 100%; aspect-ratio: 1; max-height: 60vh; object-fit: cover; display: block; background: var(--ink-3); border-radius: var(--radius); }
+  .thumbs { display: flex; gap: 8px; padding-top: 8px; }
+  .thumbs img { width: 33%; aspect-ratio: 1; object-fit: cover; border-radius: 14px; background: var(--ink-3); }
+  .body { padding: 1.6rem 0 0; }
+  h1 { font-size: clamp(2rem, 8vw, 2.8rem); margin-bottom: 0.6rem; }
+  .rating { font-weight: 700; margin-bottom: 0.2rem; }
+  .rating.unrated { color: var(--yellow); }
+  .where { color: var(--muted); margin-bottom: 1rem; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 1.1rem; }
+  .tag { border: 1px solid var(--line); border-radius: 999px; padding: 3px 12px; font-size: .82rem; font-weight: 600; }
+  .desc { margin: 0 0 1.8rem; white-space: pre-line; color: rgb(245 245 240 / 0.82); }
+  .open { width: 100%; }
+  .soon { text-align: center; color: var(--muted); font-size: .88rem; margin-top: .9rem; }
+  .state { padding: 9rem 1.5rem 2rem; text-align: center; color: var(--muted); }
+  .state h1 { color: var(--paper); }
   .hidden { display: none; }
 </style>
 </head>
 <body>
-<div class="bar"><img src="wordmark.png" alt="Landmarkd"></div>
+<header class="nav">
+  <a class="logo" href="/" aria-label="Landmarkd home"><img src="assets/wordmark-white.png" alt="Landmarkd" width="200" height="26"></a>
+  <nav class="nav-links" aria-label="Main">
+    <a class="hide-sm" href="/#how">How it works</a>
+    <a class="btn btn-yellow" href="/#get">Get the app</a>
+  </nav>
+</header>
 
 <div id="loading" class="state">Loading…</div>
 
@@ -54,15 +59,29 @@
   <img id="hero" class="hero hidden" alt="">
   <div id="thumbs" class="thumbs hidden"></div>
   <div class="body">
-    <h1 id="title"></h1>
+    <h1 id="title" class="display"></h1>
     <div id="rating" class="rating"></div>
     <div id="where" class="where"></div>
     <div id="tags" class="tags"></div>
     <p id="desc" class="desc"></p>
-    <a id="open" class="btn" href="#">Open in Landmarkd</a>
+    <a id="open" class="btn btn-yellow open" href="#">Open in Landmarkd</a>
     <div class="soon">Coming soon to the App Store</div>
   </div>
 </main>
+
+<footer class="footer">
+  <div class="wrap">
+    <div>
+      <a class="logo" href="/"><img src="assets/wordmark-white.png" alt="Landmarkd" width="200" height="26"></a>
+      <p>&copy; 2026 Landmarkd</p>
+    </div>
+    <nav aria-label="Footer">
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="terms.html">Terms of Service</a>
+      <a href="mailto:support@landmarkd.co">support@landmarkd.co</a>
+    </nav>
+  </div>
+</footer>
 
 <script>
   // A spot shared from the app: landmarkd.co/spot?id=123. Public data only —
@@ -103,7 +122,7 @@
       if (!pin) { show('missing'); return; }
       var ratings = res[1].map(function (r) { return r.rating; }).filter(function (r) { return typeof r === 'number'; });
 
-      document.title = pin.title + ' — Landmarkd';
+      document.title = pin.title + ': Landmarkd';
       document.getElementById('title').textContent = pin.title;
 
       var rating = document.getElementById('rating');

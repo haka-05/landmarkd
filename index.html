@@ -2,23 +2,245 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Landmarkd — Legal</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Landmarkd: NYC's best photo spots, and what to wear to them</title>
+<meta name="description" content="Find NYC's best photo spots, plan your look with Yves, an AI stylist that dresses you from your own closet, and mark the places worth shooting.">
+<meta property="og:title" content="Landmarkd">
+<meta property="og:description" content="NYC's best photo spots, and what to wear to them.">
+<meta property="og:image" content="https://landmarkd.co/og-image.png">
+<meta property="og:site_name" content="Landmarkd">
+<meta name="twitter:card" content="summary">
+<meta name="theme-color" content="#0d0d0c">
+<link rel="preload" href="assets/fonts/archivo-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/site.css">
+<link rel="icon" type="image/png" href="assets/pin-yellow.png">
+<script type="importmap">
+  { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.min.js" } }
+</script>
 <style>
-  :root { color-scheme: light dark; }
-  body {
-    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    max-width: 42rem; margin: 0 auto; padding: 4rem 1.25rem;
-    line-height: 1.65; color: #111; background: #fff;
+  /* ---------- Hero: the 3D map fills it, copy sits bottom-left ---------- */
+  .hero { position: relative; min-height: 100dvh; display: flex; align-items: flex-end; overflow: hidden; }
+  .hero canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  /* Keeps the copy readable over the map without hiding it. */
+  .hero::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background:
+      linear-gradient(to top, var(--ink) 0%, rgb(13 13 12 / 0.7) 26%, transparent 60%),
+      linear-gradient(to right, rgb(13 13 12 / 0.75) 0%, transparent 55%);
   }
-  @media (prefers-color-scheme: dark) { body { color: #e8e8e8; background: #0e0e0e; } a { color: #fff; } }
-  h1 { font-size: 1.9rem; letter-spacing: -0.02em; margin-bottom: 1.5rem; }
-  a.doc { display: block; padding: 1rem 1.25rem; margin-bottom: .75rem; border: 1px solid rgba(128,128,128,.3); border-radius: 10px; text-decoration: none; font-weight: 600; }
+  .hero-copy { position: relative; z-index: 1; padding: 0 0 clamp(3.5rem, 9vh, 6rem); }
+  .hero h1 { font-size: clamp(4.2rem, 15vw, 11rem); }
+  .hero p { font-size: clamp(1.1rem, 2.2vw, 1.4rem); max-width: 30ch; margin: 1.1rem 0 2rem; color: rgb(245 245 240 / 0.85); }
+  .hero .ctas { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+  /* No WebGL: a still, warm glow instead of the map. */
+  .hero.flat { background: radial-gradient(80% 60% at 70% 35%, rgb(250 208 43 / 0.18), transparent 70%), var(--ink); }
+
+  section { scroll-margin-top: 90px; }
+  .section { padding: clamp(5rem, 12vh, 8.5rem) 0 0; }
+  .section h2 { font-size: clamp(2.6rem, 7vw, 5.2rem); }
+  .lede { font-size: 1.15rem; color: var(--muted); max-width: 52ch; margin: 1.2rem 0 0; }
+
+  /* ---------- Phone frames ---------- */
+  .phone {
+    position: relative; aspect-ratio: 9 / 19.5; width: 100%;
+    border-radius: 38px; padding: 9px; background: #232320;
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08), 0 30px 80px rgb(0 0 0 / 0.45);
+  }
+  .phone img, .phone .todo { width: 100%; height: 100%; border-radius: 30px; object-fit: cover; object-position: top; }
+  /* Screenshot slots still waiting for a real screenshot. */
+  .phone .todo {
+    display: grid; place-items: center; text-align: center; padding: 1.5rem;
+    background: var(--ink-3); color: var(--muted); font-size: 0.85rem; font-weight: 600;
+  }
+
+  /* ---------- How it works: four verbs, a horizontal run of phones ---------- */
+  .steps {
+    display: grid; grid-auto-flow: column; grid-auto-columns: minmax(250px, 1fr);
+    gap: clamp(1rem, 2.5vw, 2rem); margin-top: 3rem;
+    overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 1rem;
+    scrollbar-width: none;
+  }
+  .steps::-webkit-scrollbar { display: none; }
+  .step { scroll-snap-align: start; }
+  .step .phone { max-width: 250px; }
+  .step:nth-child(even) { margin-top: 3.5rem; }
+  .step h3 { font-size: 1.9rem; margin: 1.6rem 0 0.4rem; }
+  .step p { margin: 0; color: var(--muted); max-width: 30ch; }
+  @media (max-width: 720px) {
+    .steps { grid-auto-columns: 78%; }
+    .step:nth-child(even) { margin-top: 0; }
+  }
+
+  /* ---------- Yves: the one yellow block on the page ---------- */
+  .yves { background: var(--yellow); color: var(--on-yellow); margin-top: clamp(5rem, 12vh, 8.5rem); padding: clamp(4.5rem, 10vh, 7rem) 0; overflow: hidden; }
+  .yves .wrap { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: clamp(2rem, 6vw, 6rem); align-items: center; }
+  .yves h2 { font-size: clamp(3rem, 8vw, 6.4rem); }
+  .yves p { font-size: 1.2rem; max-width: 40ch; margin: 1.4rem 0 0; }
+  .yves ul { list-style: none; padding: 0; margin: 2.2rem 0 0; display: grid; gap: 0.9rem; }
+  .yves li { font-weight: 700; font-size: 1.08rem; padding-left: 2.1rem; position: relative; }
+  .yves li img { position: absolute; left: 0; top: 0.1rem; width: 1.15rem; height: auto; }
+  .yves .phone { max-width: 330px; justify-self: center; transform: rotate(4deg); background: #141410; }
+  @media (max-width: 860px) {
+    .yves .wrap { grid-template-columns: 1fr; }
+    .yves .phone { max-width: 270px; }
+  }
+
+  /* ---------- Bento: five cells, two rows of different rhythm ---------- */
+  .bento { display: grid; grid-template-columns: repeat(6, 1fr); gap: 1rem; margin-top: 3rem; }
+  .cell {
+    border-radius: var(--radius); background: var(--ink-2); border: 1px solid var(--line);
+    padding: 1.8rem; overflow: hidden; position: relative; min-height: 260px;
+    display: flex; flex-direction: column; justify-content: flex-end;
+  }
+  .cell h3 { font-size: 1.45rem; font-weight: 800; margin: 0 0 0.4rem; line-height: 1.15; }
+  .cell p { margin: 0; color: var(--muted); max-width: 38ch; }
+  .cell.reviews { grid-column: span 4; grid-row: span 2; justify-content: flex-start; }
+  .cell.reviews .phone { position: absolute; width: 46%; right: 6%; top: 2.2rem; transform: rotate(-3deg); }
+  .cell.reviews .text { max-width: 44%; }
+  .cell.golden { grid-column: span 2; background: radial-gradient(120% 90% at 85% 0%, rgb(250 208 43 / 0.9), rgb(250 140 43 / 0.35) 45%, var(--ink-2) 75%); }
+  .cell.share { grid-column: span 2; }
+  .cell.friends { grid-column: span 3; }
+  .cell.badges { grid-column: span 3; background: linear-gradient(160deg, var(--ink-3), var(--ink-2)); }
+  .cell .pin { position: absolute; top: 1.8rem; right: 1.8rem; width: 34px; height: auto; }
+  @media (max-width: 860px) {
+    .bento { grid-template-columns: 1fr; }
+    .cell, .cell.reviews, .cell.golden, .cell.share, .cell.friends, .cell.badges { grid-column: auto; grid-row: auto; }
+    .cell.reviews { min-height: 560px; }
+    .cell.reviews .text { max-width: none; }
+    .cell.reviews .phone { width: 58%; right: auto; left: 21%; top: auto; bottom: -9rem; }
+  }
+
+  /* ---------- Closing ---------- */
+  .get { text-align: left; }
+  .get h2 { font-size: clamp(2.8rem, 9vw, 7rem); max-width: 12ch; }
+  .get .ctas { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 2.2rem; }
 </style>
 </head>
 <body>
-  <h1>Landmarkd</h1>
-  <a class="doc" href="privacy.html">Privacy Policy</a>
-  <a class="doc" href="terms.html">Terms of Service</a>
+
+<header class="nav">
+  <a class="logo" href="#top" aria-label="Landmarkd home"><img src="assets/wordmark-white.png" alt="Landmarkd" width="200" height="26"></a>
+  <nav class="nav-links" aria-label="Main">
+    <a class="hide-sm" href="#how">How it works</a>
+    <a class="hide-sm" href="#yves">Yves</a>
+    <a class="btn btn-yellow" href="#get">Get the app</a>
+  </nav>
+</header>
+
+<main id="top">
+  <section class="hero" id="hero">
+    <canvas id="map" aria-hidden="true"></canvas>
+    <div class="wrap hero-copy">
+      <h1 class="display">Mark it.</h1>
+      <p>NYC's best photo spots, and what to wear to them.</p>
+      <div class="ctas">
+        <a class="btn btn-yellow" href="#get">Get the app</a>
+        <a class="btn btn-ghost" href="#how">How it works</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="how">
+    <div class="wrap">
+      <h2 class="display reveal">Four moves.<br>One great shot.</h2>
+      <div class="steps">
+        <article class="step reveal">
+          <div class="phone"><img src="assets/shots/map.jpg" alt="The Landmarkd map of New York with yellow pins on photo spots" loading="lazy"></div>
+          <h3 class="display">Find it</h3>
+          <p>Browse the map or Discover for spots people have actually shot, rated and reviewed.</p>
+        </article>
+        <article class="step reveal">
+          <div class="phone"><img src="assets/shots/yves-chat.webp" alt="Chatting with Yves, with suggested questions like what should I wear today" loading="lazy"></div>
+          <h3 class="display">Style it</h3>
+          <p>Tell Yves where you're going. You get an outfit built from your own closet.</p>
+        </article>
+        <article class="step reveal">
+          <div class="phone"><img src="assets/shots/spot.webp" alt="A spot page for Lex 53rd St Station with its mosaic photo, tags and description" loading="lazy"></div>
+          <h3 class="display">Shoot it</h3>
+          <p>Walking directions, the best light of the day, and other people's shots for ideas.</p>
+        </article>
+        <article class="step reveal">
+          <div class="phone"><img src="assets/shots/new-pin.webp" alt="The New Pin form with aesthetic tags and the Drop Pin button" loading="lazy"></div>
+          <h3 class="display">Mark it</h3>
+          <p>Found somewhere new? Drop a pin, add your photos, and put it on the map.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="yves" id="yves">
+    <div class="wrap">
+      <div class="reveal">
+        <h2 class="display">Meet Yves.</h2>
+        <p>Your AI stylist. Add your clothes to your Closet, pick a spot, and Yves puts together a look from what you actually own.</p>
+        <ul>
+          <li><img src="assets/pin-ink.png" alt="">Outfits for the place and the weather</li>
+          <li><img src="assets/pin-ink.png" alt="">Snap a piece and it's tagged for you</li>
+          <li><img src="assets/pin-ink.png" alt="">Spot ideas that match your style</li>
+        </ul>
+      </div>
+      <div class="phone reveal"><img src="assets/shots/yves-spots.webp" alt="Yves suggesting three NYC spots for an outfit of white wide-leg jeans" loading="lazy"></div>
+    </div>
+  </section>
+
+  <section class="section" id="community">
+    <div class="wrap">
+      <h2 class="display reveal">Better with friends.</h2>
+      <div class="bento">
+        <article class="cell reviews reveal">
+          <div class="text">
+            <h3>Reviews are posts</h3>
+            <p>Rate a spot, add your shots, and like or comment on everyone else's. It all lands on your profile.</p>
+          </div>
+          <div class="phone"><img src="assets/shots/discover.webp" alt="The Discover feed showing Elizabeth Street Graffiti with a five-star rating" loading="lazy"></div>
+        </article>
+        <article class="cell golden reveal">
+          <h3>Golden hour, every day</h3>
+          <p>See when the light is best at spots near you.</p>
+        </article>
+        <article class="cell share reveal">
+          <img class="pin" src="assets/pin-yellow.png" alt="">
+          <h3>Share any spot</h3>
+          <p>Send a link and it opens right on the spot.</p>
+        </article>
+        <article class="cell friends reveal">
+          <h3>Friends and messages</h3>
+          <p>Follow people whose taste you trust, find friends from your contacts, and plan shoots in group chats.</p>
+        </article>
+        <article class="cell badges reveal">
+          <h3>Earn badges</h3>
+          <p>Level up as you add spots, write reviews and build looks. Show off your top three.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section get" id="get">
+    <div class="wrap reveal">
+      <h2 class="display">Coming soon to the App Store.</h2>
+      <p class="lede">Landmarkd is in testing right now. Questions? Email us.</p>
+      <div class="ctas">
+        <a class="btn btn-yellow" href="mailto:support@landmarkd.co">support@landmarkd.co</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <div>
+      <a class="logo" href="#top"><img src="assets/wordmark-white.png" alt="Landmarkd" width="200" height="26"></a>
+      <p>&copy; 2026 Landmarkd</p>
+    </div>
+    <nav aria-label="Footer">
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="terms.html">Terms of Service</a>
+      <a href="mailto:support@landmarkd.co">support@landmarkd.co</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="assets/reveal.js" defer></script>
+<script type="module" src="assets/hero.js"></script>
 </body>
 </html>
