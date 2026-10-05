@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Landmarkd</title>
+<!-- Link previews (iMessage, Instagram...) read these without running any
+     JavaScript, and this site is static, so every spot shares the same generic
+     card. Per-spot previews would need a server-side page. -->
+<meta property="og:title" content="A photo spot on Landmarkd">
+<meta property="og:description" content="Find the best places to shoot in NYC — and what to wear to them.">
+<meta property="og:image" content="https://landmarkd.co/og-image.png">
+<meta property="og:site_name" content="Landmarkd">
+<meta name="twitter:card" content="summary">
+<style>
+  /* Pinned to light on purpose, like reset.html: in-app browsers (Instagram,
+     Gmail) can force a white background while reporting dark mode. */
+  :root { color-scheme: only light; }
+  html, body { background: #ffffff; margin: 0; }
+  body { font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #111111; line-height: 1.5; }
+  .bar { background: #FAD02B; padding: 16px 20px; display: flex; justify-content: center; }
+  .bar img { height: 22px; width: auto; display: block; }
+  main { max-width: 32rem; margin: 0 auto; }
+  /* Square and capped, so the spot's name is on the first screen without scrolling. */
+  .hero { width: 100%; aspect-ratio: 1; max-height: 60vh; object-fit: cover; display: block; background: #eeeeee; }
+  .thumbs { display: flex; gap: 6px; padding: 6px 20px 0; }
+  .thumbs img { width: 33%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; background: #eeeeee; }
+  .body { padding: 20px 20px 40px; }
+  h1 { font-size: 1.6rem; letter-spacing: -0.02em; margin: 0 0 4px; }
+  .rating { font-weight: 600; font-size: .95rem; margin-bottom: 4px; }
+  .rating.unrated { color: #8A6B00; }
+  .where { color: #666666; font-size: .95rem; margin-bottom: 14px; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+  .tag { border: 1px solid #dddddd; border-radius: 999px; padding: 3px 11px; font-size: .8rem; font-weight: 600; }
+  .desc { margin: 0 0 24px; white-space: pre-line; }
+  .btn { display: block; text-align: center; background: #111111; color: #ffffff; text-decoration: none; font-weight: 600; padding: 15px; border-radius: 999px; }
+  .soon { text-align: center; color: #888888; font-size: .85rem; margin-top: 12px; }
+  .state { padding: 64px 24px; text-align: center; color: #666666; }
+  .state h1 { color: #111111; }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+<div class="bar"><img src="wordmark.png" alt="Landmarkd"></div>
+
+<div id="loading" class="state">Loading…</div>
+
+<div id="missing" class="state hidden">
+  <h1>Spot not found</h1>
+  <p>This link may be wrong, or the spot was removed.</p>
+</div>
+
+<main id="spot" class="hidden">
+  <img id="hero" class="hero hidden" alt="">
+  <div id="thumbs" class="thumbs hidden"></div>
+  <div class="body">
+    <h1 id="title"></h1>
+    <div id="rating" class="rating"></div>
+    <div id="where" class="where"></div>
+    <div id="tags" class="tags"></div>
+    <p id="desc" class="desc"></p>
+    <a id="open" class="btn" href="#">Open in Landmarkd</a>
+    <div class="soon">Coming soon to the App Store</div>
+  </div>
+</main>
+
+<script>
+  // A spot shared from the app: landmarkd.co/spot?id=123. Public data only —
+  // the spot's own photos (which are "no people" by design), title, rating,
+  // tags, description and neighbourhood. No reviews or usernames, so nothing
+  // about people leaves the app. Reads with the same public key as reset.html;
+  // pins and reviews are publicly readable by policy.
+  var SUPABASE_URL = 'https://qvmnthspckirkldfnvhs.supabase.co';
+  var SUPABASE_ANON_KEY = 'sb_publishable_cI6-E6Qnx4NGlnegNndkaQ_Bvhq_Pos';
+
+  function show(id) {
+    ['loading', 'missing', 'spot'].forEach(function (v) {
+      document.getElementById(v).classList.toggle('hidden', v !== id);
+    });
+  }
+
+  // Everything below is user-written (titles, descriptions, tags), so it only
+  // ever goes in via textContent — never innerHTML — or it could run script on
+  // this domain. Photos must be https URLs from our own storage.
+  function isOurPhoto(url) {
+    return typeof url === 'string' && url.indexOf(SUPABASE_URL + '/storage/') === 0;
+  }
+
+  function get(path) {
+    return fetch(SUPABASE_URL + '/rest/v1/' + path, { headers: { apikey: SUPABASE_ANON_KEY } })
+      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); });
+  }
+
+  var id = new URLSearchParams(location.search).get('id');
+  if (!/^\d+$/.test(id || '')) {
+    show('missing');
+  } else {
+    Promise.all([
+      get('pins?id=eq.' + id + '&select=id,title,description,tags,borough,neighborhoods,place_photos'),
+      get('reviews?pin_id=eq.' + id + '&select=rating'),
+    ]).then(function (res) {
+      var pin = res[0][0];
+      if (!pin) { show('missing'); return; }
+      var ratings = res[1].map(function (r) { return r.rating; }).filter(function (r) { return typeof r === 'number'; });
+
+      document.title = pin.title + ' — Landmarkd';
+      document.getElementById('title').textContent = pin.title;
+
+      var rating = document.getElementById('rating');
+      if (ratings.length) {
+        var avg = ratings.reduce(function (a, b) { return a + b; }, 0) / ratings.length;
+        rating.textContent = '★ ' + avg.toFixed(1) + ' · ' + ratings.length + (ratings.length === 1 ? ' review' : ' reviews');
+      } else {
+        rating.textContent = 'New · Unrated';
+        rating.classList.add('unrated');
+      }
+
+      var hood = (pin.neighborhoods || [])[0];
+      document.getElementById('where').textContent = [hood, pin.borough].filter(Boolean).join(', ');
+
+      var tags = document.getElementById('tags');
+      (pin.tags || []).forEach(function (t) {
+        var el = document.createElement('span');
+        el.className = 'tag';
+        el.textContent = t;
+        tags.appendChild(el);
+      });
+
+      document.getElementById('desc').textContent = pin.description || '';
+
+      var photos = (pin.place_photos || []).filter(isOurPhoto);
+      if (photos.length) {
+        var hero = document.getElementById('hero');
+        hero.src = photos[0];
+        hero.alt = 'Photo of ' + pin.title;
+        hero.classList.remove('hidden');
+        var thumbs = document.getElementById('thumbs');
+        photos.slice(1, 4).forEach(function (u) {
+          var img = document.createElement('img');
+          img.src = u;
+          img.alt = '';
+          img.loading = 'lazy';
+          thumbs.appendChild(img);
+        });
+        if (photos.length > 1) thumbs.classList.remove('hidden');
+      }
+
+      // Opens the app straight to this spot if it's installed. Universal links
+      // (a later build) will make the page's own URL do this directly.
+      document.getElementById('open').href = 'landmarkd://spot?id=' + pin.id;
+      show('spot');
+    }).catch(function () { show('missing'); });
+  }
+</script>
+</body>
+</html>
