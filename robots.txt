@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+# Account emails land here (password reset, email confirmed): nothing to index.
+Disallow: /reset.html
+Disallow: /confirmed.html
+
+Sitemap: https://landmarkd.co/sitemap.xml
