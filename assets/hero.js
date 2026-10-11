@@ -88,14 +88,55 @@ async function main() {
     pointer.ty = (e.clientY / window.innerHeight - 0.5) * 2;
   }, { passive: true });
 
+  // ---- Drag to spin. Sideways drags turn the camera around the spots 1:1
+  // with the finger; on release it keeps the flick's speed and coasts to a
+  // stop on Apple's deceleration curve (rate per ms, as in UIScrollView).
+  // touch-action: pan-y leaves vertical drags to page scrolling on phones.
+  const SPIN_PER_PX = 0.004; // radians per pixel dragged
+  const DECELERATION = 0.996; // per ms; UIScrollView uses 0.998, this stops a touch sooner
+  const spin = { angle: 0, velocity: 0, dragging: false, lastX: 0, lastT: 0 };
+  canvas.style.touchAction = 'pan-y';
+  canvas.style.cursor = 'grab';
+  canvas.addEventListener('pointerdown', (e) => {
+    canvas.setPointerCapture(e.pointerId);
+    Object.assign(spin, { dragging: true, velocity: 0, lastX: e.clientX, lastT: e.timeStamp });
+    canvas.style.cursor = 'grabbing';
+  });
+  canvas.addEventListener('pointermove', (e) => {
+    if (!spin.dragging) return;
+    const delta = -(e.clientX - spin.lastX) * SPIN_PER_PX;
+    const dt = Math.max(e.timeStamp - spin.lastT, 1);
+    spin.angle += delta;
+    // Smoothed, so one jittery last event can't decide the flick.
+    spin.velocity = spin.velocity * 0.3 + (delta / dt) * 0.7;
+    Object.assign(spin, { lastX: e.clientX, lastT: e.timeStamp });
+    if (still) draw(1e6);
+  });
+  const release = () => {
+    if (!spin.dragging) return;
+    spin.dragging = false;
+    canvas.style.cursor = 'grab';
+    if (still) spin.velocity = 0; // Reduce Motion: no coasting after you let go
+  };
+  canvas.addEventListener('pointerup', release);
+  canvas.addEventListener('pointercancel', release);
+
   const start = performance.now();
+  let lastFrame = start;
   function draw(now) {
+    const dt = Math.min(now - lastFrame, 50);
+    lastFrame = now;
+    if (!spin.dragging && spin.velocity) {
+      spin.angle += spin.velocity * dt;
+      spin.velocity *= DECELERATION ** dt;
+      if (Math.abs(spin.velocity) < 1e-6) spin.velocity = 0;
+    }
     const t = now - start;
     // Camera eases down from high above, then drifts gently side to side.
     const intro = still ? 1 : easeOutCubic(Math.min(t / 2600, 1));
     pointer.x += (pointer.tx - pointer.x) * 0.04;
     pointer.y += (pointer.ty - pointer.y) * 0.04;
-    const angle = 1.2 + (still ? 0 : Math.sin(t / 9000) * 0.22) + pointer.x * 0.07;
+    const angle = 1.2 + spin.angle + (still ? 0 : Math.sin(t / 9000) * 0.22) + pointer.x * 0.07;
     const radius = 2700 - intro * 550;
     const height = 2700 - intro * 1250 + pointer.y * 60;
     camera.position.set(focus[0] + Math.sin(angle) * radius, height, focus[1] + Math.cos(angle) * radius);

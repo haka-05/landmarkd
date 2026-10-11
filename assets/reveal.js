@@ -2,6 +2,8 @@
 // IntersectionObserver, not a scroll listener, so it costs nothing while
 // scrolling. Without it, everything is simply shown.
 (() => {
+  // iOS Safari only applies :active (the button press) when a touch listener exists.
+  document.addEventListener('touchstart', () => {}, { passive: true });
   const els = document.querySelectorAll('.reveal');
   if (!('IntersectionObserver' in window)) {
     els.forEach((el) => el.classList.add('in'));

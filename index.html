@@ -74,6 +74,24 @@
   .step:nth-child(even) { margin-top: 3.5rem; }
   .step h3 { font-size: 1.9rem; margin: 1.6rem 0 0.4rem; }
   .step p { margin: 0; color: var(--muted); max-width: 30ch; }
+  .how-pin { display: none; }
+  /* Wide screens: the Apple product-page pattern. Steps scroll in a column,
+     the phone stays put and swaps its screen as each step reaches the middle. */
+  @media (min-width: 900px) {
+    .how { display: grid; grid-template-columns: 1fr minmax(260px, 320px); gap: clamp(3rem, 7vw, 7rem); margin-top: 1rem; }
+    .how .steps { display: block; overflow: visible; margin: 0; padding: 0 0 18vh; }
+    .how .step { min-height: 70vh; display: flex; flex-direction: column; justify-content: center; margin: 0; opacity: 0.32; transition: opacity 0.5s var(--ease); }
+    .how .step.active { opacity: 1; }
+    .how .step .phone { display: none; }
+    .how .step h3 { font-size: clamp(2.6rem, 5vw, 4.2rem); margin: 0 0 0.8rem; }
+    .how .step p { font-size: 1.2rem; max-width: 32ch; }
+    .how-pin { display: block; position: sticky; top: max(96px, calc(50vh - 330px)); align-self: start; margin: 18vh 0 0; }
+    .how-pin .phone img { position: absolute; inset: 9px; width: calc(100% - 18px); height: calc(100% - 18px); opacity: 0; transform: scale(1.03); transition: opacity 0.45s var(--ease), transform 0.6s var(--ease); }
+    .how-pin .phone img.on { opacity: 1; transform: none; }
+  }
+  @media (min-width: 900px) and (prefers-reduced-motion: reduce) {
+    .how .step, .how-pin .phone img { transition: opacity 0.2s linear; transform: none; }
+  }
   @media (max-width: 720px) {
     .steps { grid-auto-columns: 78%; }
     .step:nth-child(even) { margin-top: 0; }
@@ -99,6 +117,15 @@
     border-radius: var(--radius); background: var(--ink-2); border: 1px solid var(--line);
     padding: 1.8rem; overflow: hidden; position: relative; min-height: 260px;
     display: flex; flex-direction: column; justify-content: flex-end;
+  }
+  /* Hover lift, mouse only (touch screens would leave it stuck on). Phones
+     keep their own tilt, so the lift is added on top of it. */
+  .cell, .phone { transition: opacity 0.9s var(--ease), transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.3s; }
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .cell:hover { transform: translateY(-3px); border-color: rgb(245 245 240 / 0.22); }
+    .step .phone:hover { transform: translateY(-8px); }
+    .yves .phone:hover { transform: rotate(4deg) translateY(-8px); }
+    .cell.reviews:hover .phone { transform: rotate(-3deg) translateY(-6px); }
   }
   .cell h3 { font-size: 1.45rem; font-weight: 800; margin: 0 0 0.4rem; line-height: 1.15; }
   .cell p { margin: 0; color: var(--muted); max-width: 38ch; }
@@ -151,6 +178,7 @@
   <section class="section" id="how">
     <div class="wrap">
       <h2 class="display reveal">Four moves.<br>One great shot.</h2>
+      <div class="how">
       <div class="steps">
         <article class="step reveal">
           <div class="phone"><img src="assets/shots/map.jpg" alt="The Landmarkd map of New York with yellow pins on photo spots" loading="lazy"></div>
@@ -172,6 +200,18 @@
           <h3 class="display">Mark it</h3>
           <p>Found somewhere new? Drop a pin, add your photos, and put it on the map.</p>
         </article>
+      </div>
+      <!-- Wide screens: one phone pinned beside the steps, showing whichever
+           step is in the middle of the viewport (assets/how.js). Phones and
+           small screens use each step's own phone instead. -->
+      <div class="how-pin" aria-hidden="true">
+        <div class="phone">
+          <img class="on" src="assets/shots/map.jpg" alt="">
+          <img src="assets/shots/yves-chat.webp" alt="" loading="lazy">
+          <img src="assets/shots/spot.webp" alt="" loading="lazy">
+          <img src="assets/shots/new-pin.webp" alt="" loading="lazy">
+        </div>
+      </div>
       </div>
     </div>
   </section>
@@ -249,6 +289,7 @@
 </footer>
 
 <script src="assets/reveal.js" defer></script>
+<script src="assets/how.js" defer></script>
 <script type="module" src="assets/hero.js"></script>
 </body>
 </html>

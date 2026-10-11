@@ -36,7 +36,8 @@ body {
   color: var(--paper);
   font-family: "Archivo", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 17px;
-  line-height: 1.6;
+  line-height: 1.55;
+  -webkit-tap-highlight-color: transparent;
   -webkit-font-smoothing: antialiased;
 }
 img { max-width: 100%; display: block; }
@@ -48,7 +49,9 @@ a { color: inherit; }
   font-weight: 900;
   font-stretch: 115%;
   text-transform: uppercase;
-  letter-spacing: -0.01em;
+  /* Tracking tightens as type grows (Apple's size-specific tracking): the
+     biggest headlines get the most. Body text stays at 0. */
+  letter-spacing: clamp(-0.035em, -0.004em - 0.25vw, -0.01em);
   line-height: 0.95;
   margin: 0;
 }
@@ -100,9 +103,18 @@ a { color: inherit; }
   text-decoration: none;
   cursor: pointer;
   border: 0;
-  transition: transform 0.2s var(--ease), background 0.2s;
+  /* Release: springs back, critically damped (no bounce: nothing was thrown). */
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), background 0.2s;
 }
-.btn:active { transform: scale(0.97); }
+/* Press: responds the instant the finger lands, not on release. */
+.btn:active { transform: scale(0.96); transition-duration: 0.08s; }
+@media (hover: hover) {
+  .btn:hover { transform: translateY(-1px); }
+  .btn:hover:active { transform: scale(0.96); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn, .btn:hover, .btn:active { transform: none; }
+}
 .btn-yellow { background: var(--yellow); color: var(--on-yellow); }
 .btn-yellow:hover { background: #ffdb4d; }
 .btn-ghost { background: rgb(245 245 240 / 0.08); color: var(--paper); border: 1px solid var(--line); }
