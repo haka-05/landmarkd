@@ -24,7 +24,7 @@
 </header>
 <main class="doc">
   <h1 class="display">Privacy Policy</h1>
-  <p class="updated">Last updated October 5, 2026</p>
+  <p class="updated">Last updated October 13, 2026</p>
     <section>
       <h2>The short version</h2>
       <p>Landmarkd helps you find and share NYC photo spots. We collect the account details you give us, the content you create, and your location (only while you're using the app). We don't sell your data and we don't run ads. Questions: <a href="mailto:support@landmarkd.co">support@landmarkd.co</a>.</p>
@@ -33,7 +33,8 @@
       <h2>What we collect</h2>
       <p>Account: your email address, username, and profile photo, plus a display name and bio if you add them.</p>
       <p>Phone number (optional): if you add one at sign-up or in Settings, it's used only so people who have your number in their contacts can find you. It's never shown to anyone.</p>
-      <p>Content you create: spots you add (including their map coordinates), reviews and their photos, comments, likes, saved folders, and items you add to your Closet.</p>
+      <p>Content you create: spots you add (including their map coordinates), reviews and their photos, comments, likes, saved folders, and items you add to your Closet, along with the details our AI reads from each item's photo (color, fabric, fit, season, style).</p>
+      <p>Outfit memory: if you use Today's fit, the Closet items you mark as worn each day. Yves uses it so it doesn't suggest the same outfit twice in a week. You can edit or clear any day, and it's deleted with your account.</p>
       <p>Location: your device location while the app is open, used to centre the map and to place a pin accurately. We do not track your location in the background.</p>
       <p>Photos: images you choose from your library or capture with the camera, for reviews, spots, Closet items, comments, messages, and your avatar, and the photo you take at a spot to show you've been there ("You at the Spot").</p>
       <p>Contacts: only if you choose to find friends from your contacts and allow access. The phone numbers in your address book are sent to our server to check which belong to Landmarkd users. They're used for that check and are not stored.</p>
@@ -46,16 +47,16 @@
       <p>Public, visible to anyone using the app: your username, display name, bio, and profile photo, the badges you choose to show, the spots you add, your reviews and their photos, your comments, and your likes.</p>
       <p>Shared spots: when someone shares a spot, it gets a public web page on landmarkd.co that anyone with the link can open. It shows the spot's name, photos, description, tags, neighbourhood, and average rating. It never shows reviews, usernames, or who added the spot.</p>
       <p>Your choice, set under Settings › Privacy: who can see your followers and following lists (Public, Friends only, or Private). The follower and following counts remain visible.</p>
-      <p>Private, only you can see these: your phone number, your Closet, your saved folders, your chats with Yves, and your "You at the Spot" photos. Your messages are visible only to you and the people in that conversation.</p>
+      <p>Private, only you can see these: your phone number, your Closet, your outfit memory, your saved folders, your chats with Yves, and your "You at the Spot" photos. Your messages are visible only to you and the people in that conversation.</p>
     </section>
     <section>
       <h2>AI features</h2>
       <p>Yves, outfit suggestions, automatic photo tagging, and moderation (checking comments, and checking spot and review photos so private homes and unrelated photos stay off the map) are powered by Anthropic's Claude API.</p>
-      <p>When you use these features, the relevant text and images are sent to Anthropic to generate a response. This happens through our own server, so your data is never sent from your device directly to a third party. See Anthropic's privacy policy at anthropic.com/legal/privacy for how they handle API data.</p>
+      <p>When you use these features, the relevant text and images are sent to Anthropic to generate a response. That includes your Closet items and outfit memory when Yves builds an outfit, and any inspiration photo you attach to Today's fit, which is used only for that request and not stored. This happens through our own server, so your data is never sent from your device directly to a third party. See Anthropic's privacy policy at anthropic.com/legal/privacy for how they handle API data.</p>
     </section>
     <section>
       <h2>Services we rely on</h2>
-      <p>Supabase: hosts our database, accounts, and photo storage.<br>Anthropic: powers the AI features described above.<br>Mapbox: address search and walking directions.<br>Apple Maps: map display on iPhone.<br>Google Maps: map display on Android devices.<br>Expo: delivers push notifications (through Apple's and Google's notification services) and app updates.<br>Open-Meteo: weather, used to tailor outfit suggestions. No personal data is sent.<br>Sentry: crash reporting, so we find out when the app breaks.</p>
+      <p>Supabase: hosts our database, accounts, and photo storage.<br>Anthropic: powers the AI features described above.<br>Mapbox: address search and walking directions.<br>Apple Maps: map display on iPhone.<br>Google Maps: map display on Android devices.<br>Expo: delivers push notifications (through Apple's and Google's notification services) and app updates.<br>Open-Meteo: weather, used to tailor outfit suggestions. Your device sends the map coordinates it wants weather for (your location, or a spot's), with nothing that identifies you or your account.<br>Sentry: crash reporting, so we find out when the app breaks.</p>
       <p>About crash reporting: when the app hits an error, Sentry receives the technical details (what went wrong, which screen, your device model and app version) along with your account's internal ID so we can tell whether a bug is hitting one person repeatedly or many people once. It does not receive your name, email, IP address, or any of your content: no messages, no Closet items, no Yves conversations. We do not record your screen.</p>
       <p>We do not use advertising or analytics trackers, and we do not track you across other apps or websites.</p>
     </section>
@@ -67,7 +68,8 @@
     <section>
       <h2>Your data and your choices</h2>
       <p>You can edit your username, email, avatar, phone number, and privacy settings at any time under Settings. You can delete individual spots, reviews, comments, and Closet items.</p>
-      <p>You can delete your account at any time under Settings › Delete Account. This permanently deletes your profile, reviews, comments, likes, messages, Closet, folders, chats with Yves, and the photos you uploaded. Spots you added stay on the map, with their photos, without your name, because other people's reviews are attached to them.</p>
+      <p>You can delete your account at any time under Settings › Delete Account. This permanently deletes your profile, reviews, comments, likes, messages, Closet, outfit memory, folders, chats with Yves, and the photos you uploaded. Spots you added stay on the map, with their photos, without your name, because other people's reviews are attached to them.</p>
+      <p>If you can't get into the app, you can ask us to delete your account at landmarkd.co/delete-account.</p>
       <p>To request a copy of your data, email <a href="mailto:support@landmarkd.co">support@landmarkd.co</a> and we'll action it.</p>
       <p>Note that content you've shared publicly (such as a review on a spot) may remain visible to others until it's removed.</p>
     </section>
@@ -78,6 +80,10 @@
     <section>
       <h2>Changes</h2>
       <p>We may update this policy as the app changes. The "last updated" date above will always reflect the current version, and significant changes will be announced in the app.</p>
+    </section>
+    <section>
+      <h2>Who we are</h2>
+      <p>Landmarkd is an independent app made and run in New York City. It's responsible for the data described here.</p>
     </section>
     <section>
       <h2>Contact</h2>

@@ -74,7 +74,7 @@
 
   <form id="reset-form">
     <label for="pw">New password</label>
-    <input type="password" id="pw" autocomplete="new-password" placeholder="At least 6 characters" required>
+    <input type="password" id="pw" autocomplete="new-password" placeholder="At least 8 characters" required>
 
     <label for="pw2">Confirm new password</label>
     <input type="password" id="pw2" autocomplete="new-password" placeholder="Type it again" required>
@@ -139,7 +139,10 @@
     var btn = document.getElementById('submit-btn');
     errEl.textContent = '';
 
-    if (pw.length < 6) { errEl.textContent = 'Password must be at least 6 characters.'; return; }
+    // Same rules as the app (components/passwordStrength.js): at least 8, and not
+    // all digits or a few repeated characters. The full common-password list lives in the app.
+    if (pw.length < 8) { errEl.textContent = 'Password must be at least 8 characters.'; return; }
+    if (/^\d+$/.test(pw) || new Set(pw.toLowerCase()).size < 4) { errEl.textContent = 'That password is too easy to guess. Try a few words together.'; return; }
     if (pw !== pw2) { errEl.textContent = "Those passwords don't match."; return; }
 
     btn.disabled = true;
